@@ -97,7 +97,7 @@ function makeSkyBox() {
 
     const loader = new THREE.TextureLoader();
     const texture = loader.load(
-        'resources/images/skyboxes/02.jpg',
+        './resources/images/skyboxes/02.jpg',
         () => {
 
             const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
@@ -121,7 +121,7 @@ function loadMuseum() {
 	loader.setDRACOLoader( dracoLoader );
 
 	loader.load(
-		'/resources/model/iwopMuseum.glb',
+		'./resources/model/iwopMuseum.glb',
 		function ( gltf ) {
 
 			console.log(gltf.scene);
