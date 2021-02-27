@@ -1,0 +1,23 @@
+{
+  "name": "iwop_museum_2020",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "html-webpack-plugin": "^4.5.1",
+    "three": "^0.124.0"
+  },
+  "devDependencies": {
+    "babel-loader": "^8.2.2",
+    "fork-ts-checker-webpack-plugin": "^6.0.8",
+    "ts-loader": "^8.0.14",
+    "typescript": "^4.1.3",
+    "webpack": "^5.11.1",
+    "webpack-cli": "^4.3.1",
+    "webpack-dev-server": "^3.11.1"
+  },
+  "scripts": {
+    "dev": "webpack serve --mode development",
+    "setup": "cp node_modules/three/examples/js/libs/ammo.wasm.js dist/&&cp node_modules/three/examples/js/libs/ammo.wasm.wasm dist/&&cp -r src dist&&mkdir -p dist/dist&&cp dist/ammo.wasm.wasm dist/dist&&cp dist/ammo.wasm.js dist/dist"
+  }
+}
