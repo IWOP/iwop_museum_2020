@@ -1,3 +1,8 @@
+/**
+ * 
+ * @author 2021, 강성우.
+ */
+
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -13,7 +18,7 @@ import { artInfos } from './art.config';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({
-    antialias: true,
+    // antialias: true,
 });
 const controls = new PointerLockControls( camera, renderer.domElement);
 
@@ -30,6 +35,7 @@ function setRenderer() {
 	//@ts-ignore
 	renderer.gammaOutput = true;	// 블랜더 모델 색감 오류 방지
 	renderer.shadowMap.enabled = true;	
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setPixelRatio(window.devicePixelRatio);	// 픽셀 깨짐 방지
 
@@ -113,6 +119,13 @@ function makeSkyBox() {
 
 // ================================== 맵 로딩 =========================================================
 
+const CAST_BAN_LIST: string[] = [
+]
+
+const RECEIVE_BAN_LIST: string[] = [
+	'earth',	// 문자가 회전하며 그림자가 남음.
+]
+
 function loadMuseum() {
 
 	const loader = new GLTFLoader();
@@ -124,7 +137,7 @@ function loadMuseum() {
 		'./resources/model/iwopMuseum.glb',
 		function ( gltf ) {
 
-			console.log(gltf.scene);
+			// console.log(gltf.scene);
 
 			scene.add( gltf.scene );
 
@@ -140,8 +153,16 @@ function loadMuseum() {
 
 					}	
 					
-					node.castShadow = true; 
-					node.receiveShadow = true;
+					if( !CAST_BAN_LIST.includes( node.name ) ) {
+
+						node.castShadow = true; 
+
+					}
+					if( !RECEIVE_BAN_LIST.includes( node.name ) ) {
+
+						node.receiveShadow = true;
+						
+					}
 
 					conclusionManager.addCheck( node );
 
@@ -158,7 +179,11 @@ function loadMuseum() {
 				}
 
 			} )
-
+			
+			// 퍼포먼스를 위해 자동 그림자 업데이트 막기.
+			renderer.shadowMap.autoUpdate = false;
+			renderer.shadowMap.needsUpdate = true;
+			
 			animate();
 	
 		},
@@ -193,7 +218,6 @@ function addLightOn( x:number, y:number, z:number ) {
 
 	// shadow map 치명적 오류 방지
 	light.shadow.bias = -0.001;
-	light.shadow.normalBias = -0.001;
 	light.shadow.mapSize.set( 1024, 1024 );
 
 	light.castShadow = true;
