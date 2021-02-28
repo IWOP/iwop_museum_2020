@@ -31,7 +31,7 @@ const renderer = new THREE.WebGLRenderer({
 	alpha: true,
 });
 const clock = new Clock();
-const controls = new PointerLockControls( camera, renderer.domElement);
+const controls = new PointerLockControls( camera, renderer.domElement );
 
 // my var
 const keyIsDownMap: {
@@ -308,25 +308,9 @@ const fontLoader = new THREE.FontLoader();
 
 
 const addArtOn = function() {
-	
-	let font: THREE.Font;
-	let waitingList: THREE.Mesh[] = [];
 
-	// 폰트 바꾸고싶으면 https://gero3.github.io/facetype.js/ 여기서 json으로 형식 변경 하세요
-	fontLoader.load('./resources/font/NanumMyeongjo_Regular.json', (_font) => {
-		font = _font;
-		for(let mesh of waitingList){
-			load( mesh );
-		}
-	},
-	()=>{},
-		console.error
-	);
-
-	// --
 	const textMaterial = new THREE.MeshLambertMaterial();
 	textMaterial.color.set( 0x00000 );
-
 	
 	const size = new THREE.Vector3();
 	const vector3 = new THREE.Vector3();
@@ -356,11 +340,6 @@ const addArtOn = function() {
 	}
 
 	function load( mesh: THREE.Mesh ) {
-
-		if( !font ) {
-			waitingList.push( mesh );
-			return;
-		}
 
 		const artInfo = artInfos.splice( 0, 1 )[0];
 	

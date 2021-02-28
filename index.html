@@ -4,18 +4,11 @@
 		<meta charset="utf-8">
 		<title>IWOP 2020 작품 전시관</title>
 		<style>
+			
 			body, html {
 				width: 100%;
 				height: 100%;
 				margin: 0;
-			}
-			#welcome {
-				width: 100%;
-				height: 100%;
-
-				display: flex;
-
-				position: absolute;
 			}
 			
 			#pause {
@@ -23,8 +16,10 @@
 				height: 100%;
 				display: none;
 			}
+
 		</style>
 		<link rel="stylesheet" href="./src/style/loading.css">
+		<link rel="stylesheet" href="./src/style/welcome.css">
 	</head>
 	<body>
 		<div id="loading" class="container">
@@ -33,7 +28,28 @@
 			</div>
 		</div>
 		<div id="welcome">
-
+			<div>
+				Welcome
+			</div>
+			<div>
+				To
+			</div>
+			<div>
+				IWOP museum
+			</div>
+			<div id="info">
+				w, a, s, d to move,
+				shift to run.
+			</div>
+			<button id="enter">
+				Enter
+			</button>
+			<div>
+			</div>
+			<div id="audio">
+				audio
+				<input type="range" id="welcomeAudioBar" min="0" max="1" step="0.001">
+			</div>
 		</div>
 		<div id="pause">
 
