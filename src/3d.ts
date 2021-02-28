@@ -1,3 +1,11 @@
+declare global {
+	interface Window {
+		opera: any;
+	}
+}
+let isMobileOrTablet = false;
+(function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) isMobileOrTablet = true; })(navigator.userAgent || navigator.vendor || window.opera);
+
 /**
  * 
  * @author 2021, 강성우.
@@ -10,7 +18,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { ConclusionManager } from './conclusion';
 
 import { artInfos } from './art.config';
-import { Clock } from 'three';
+import { Clock, Quaternion, Vector3 } from 'three';
 
 
 // ================================== 장소 생성 코드 =========================================================
@@ -30,6 +38,8 @@ const keyIsDownMap: {
 } = {}
 const conclusionManager = new ConclusionManager( controls );
 
+let canMove = false;
+
 
 // ================================== renderer 설정 =========================================================
 
@@ -39,7 +49,8 @@ function setRenderer() {
 	renderer.shadowMap.enabled = true;	
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	// renderer.setPixelRatio( window.devicePixelRatio );	// apple 기기에서의 pixel ratio 기하학적 상승으로 끔.
+	// renderer.setPixelRatio( window.devicePixelRatio );	
+	// 본래 픽셀 깨짐 방지용으로 사용했지만, apple 기기에서의 프레임이 큰폭으로 하락해 끔.
 
     // 크기 변경
     window.onresize = () => {
@@ -50,8 +61,6 @@ function setRenderer() {
         renderer.setSize(window.innerWidth, window.innerHeight);
 
     }
-
-	document.body.appendChild( renderer.domElement );
 
 }
 
@@ -124,7 +133,7 @@ function makeSkyBox() {
 // ================================== 맵 로딩 =========================================================
 
 const CAST_BAN_LIST: string[] = [
-	'wall1',
+	'wall1',		// 굳이 cast 를 하지 않아도 되는것들.
 	'wall1.001',
 	'wall1.002',
 	'wall1.003',
@@ -145,7 +154,7 @@ const RECEIVE_BAN_LIST: string[] = [
     '큐브.018'
 ]
 
-function loadMuseum() {
+function loadMuseum( onload: Function ) {
 
 	const loader = new GLTFLoader();
 	const dracoLoader = new DRACOLoader();
@@ -202,18 +211,21 @@ function loadMuseum() {
 			// 퍼포먼스를 위해 자동 그림자 업데이트 막기.
 			renderer.shadowMap.autoUpdate = false;
 			renderer.shadowMap.needsUpdate = true;
+
+			setTimeout(()=>{
+				canMove = true;
+			}, 2000) // 미안합니다... 이렇게짜서...
+			onload( renderer );
 			
 			animate();
 	
 		},
 		function ( xhr ) {
-	
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-	
+			
 		},
 		function ( error ) {
 	
-			console.log( 'An error happened' );
+			console.error( error );
 	
 		}
 
@@ -263,9 +275,107 @@ function addLight() {
 
 // ================================== 작품 전시 ==========================================================
 
-function addArtOn( mesh: THREE.Mesh ) {
+const textureLoader = new THREE.TextureLoader();
+const fontLoader = new THREE.FontLoader();
+
+/**
+ * 유지보수 하는 후배: 왜.... 이런코드를 짜는거지...?
+ * @author 2021, 강성우: 그야.... 최적화니까.... 왜? 내가 미치기라도 한것같나?
+ */
+const addArtOn = function() {
+
+	let font: THREE.Font;
+	let waitingList: THREE.Mesh[] = [];
+
+	// 폰트 바꾸고싶으면 https://gero3.github.io/facetype.js/ 여기서 json으로 형식 변경 하세요
+	fontLoader.load('./resources/font/NanumMyeongjo_Regular.json', (_font) => {
+			font = _font;
+
+			for(let mesh of waitingList){
+				load( mesh );
+			}
+		},
+		console.log,
+		console.error
+	);
+
+	const size = new THREE.Vector3();
+	const vector3 = new THREE.Vector3();
+	const box3 = new THREE.Box3();
+
+	function load( mesh: THREE.Mesh ) {
+
+		if( !font ) {
+			waitingList.push( mesh );
+			return;
+		}
+
+		const artInfo = artInfos.splice( 0, 1 )[0];
 	
-}
+		// 그림 넣어주는 코드
+		const material = new THREE.MeshLambertMaterial({
+			map: textureLoader.load( artInfo.ThumbnailPath ),
+		});
+		const ratio = artInfo.ratio || 0.5;
+		const geometry = new THREE.PlaneGeometry( 5.8, 5.8*ratio );
+		const art = new THREE.Mesh(geometry, material);
+		
+		// 위치 정해주는 코드.
+		art.position.copy( mesh.position );
+		art.position.y = 6;
+		art.position.add( new Vector3( 0, 0, 0.4 ).applyQuaternion( mesh.quaternion ) )
+		art.rotation.copy( mesh.rotation );
+
+		// 이름 텍스트 정해주는 코드.
+		const textMaterial = new THREE.MeshLambertMaterial();
+		textMaterial.color.set( 0x00000 );
+		const nameGeometry = new THREE.TextGeometry( artInfo.name, {
+			font,
+			size: 0.4,
+			height: 0.1,
+		});
+
+		// 텍스트를 가운데로 모아줍니다. 
+		const name = new THREE.Mesh( nameGeometry, textMaterial );
+		box3.setFromObject( name ).getSize( size )
+		name.position.copy(art.position);
+		name.position.y = 4;
+		name.rotation.copy( art.rotation );
+		name.position.add( vector3.set( -size.x/2, 0, 0 ).applyQuaternion( mesh.quaternion ) )
+
+		// 한게 글자수를 정하고 한계 글자수로 나누는 코드
+		const detailLength = 20;
+
+		let detailEdited: string[] = [];
+		for(let i = 0; i < artInfo.detail.length / detailLength; i++){
+			let endPoint = Math.min((i+1)*detailLength, artInfo.detail.length); 
+			detailEdited.push( artInfo.detail.slice(i*detailLength, endPoint));
+		}
+		const detailGeometry = new THREE.TextGeometry( detailEdited.join('\n'), {
+			font,
+			size: 0.2,
+			height: 0.05
+		})
+		
+		// 설명 위치 조정
+		const detail = new THREE.Mesh( detailGeometry, textMaterial );
+		detail.position.copy( art.position );
+		detail.position.y = 4;
+		detail.position.y -= size.y;
+		box3.setFromObject( detail ).getSize( size )
+		detail.quaternion.copy( art.quaternion );
+		detail.position.add( vector3.set( -size.x/2, 0, 0 ).applyQuaternion( mesh.quaternion ) );
+		
+		// scene 에 추가
+		scene.add( art );
+		scene.add( name );
+		scene.add( detail );
+		
+	}
+
+	return load;
+	
+}()
 
 
 // ================================== 카메라 설정 =========================================================
@@ -294,14 +404,16 @@ let tempRight = 0;
 let moved = false;
 
 
-function move( delta: number ) {
+function move( delta: number, speed = 6 ) {
+	
+	if( !canMove ) return;
 
 	fowardSpeed = 0;
 	rightSpeed = 0;
 	leftSpeed = 0;
 	backwardSpeed = 0;
 
-	DISTANCE = delta * 6;
+	DISTANCE = delta * speed;
 
 	moved = false;
 	if( keyIsDownMap['KeyW'] ) {
@@ -367,20 +479,19 @@ function animate() {
 	move( delta );
 	renderer.render( scene, camera );
 	
-	// console.log(renderer.info.render, delta)
 }
 
 // ================================== 맨 처음 =========================================================
 
 
 
-export function init() {
+export function init( onload: Function ) {
 
 	makeSkyBox();
 	setRenderer();
 	setController();
 	addLight();
 	setCamera();
-	loadMuseum();
+	loadMuseum( onload );
 
 }
