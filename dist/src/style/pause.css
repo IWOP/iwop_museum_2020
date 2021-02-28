@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&display=swap');
+
+#pause {
+
+    width: 100%;
+    height: 100%;
+
+    position: absolute;
+
+    display: none; /* or flex */
+    background-color: white;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.6);
+
+}
+
+#pause > div{
+
+    font-family: 'Nanum Myeongjo', serif;
+    color: white;
+
+}
+
+#pause > #title{
+
+    font-size: xx-large;
+
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    
+    to {
+        opacity: 1;
+    }
+}

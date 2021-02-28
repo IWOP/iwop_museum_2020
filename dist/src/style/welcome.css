@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&display=swap');
+
+#welcome {
+
+    width: 100%;
+    height: 100%;
+
+    position: absolute;
+
+    display: flex;
+    background-color: white;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    animation-duration: 1s;
+      animation-name: fadeIn;
+
+    transition: 2s opacity;
+
+}
+
+#welcome > div{
+
+    font-size: xx-large;
+    font-family: 'Nanum Myeongjo', serif;
+
+}
+
+#welcome > #info{
+
+    font-size: medium;
+    color: gray;
+
+}
+
+#welcome > #welcomeAudio{
+
+    font-size: medium;
+    color: gray;
+
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    
+    to {
+        opacity: 1;
+    }
+}
+
+#welcome > #enter {
+    margin-top: 20px;
+    width: 100px;
+    height: 30px;
+    
+    font-family: 'Nanum Myeongjo', serif;
+}

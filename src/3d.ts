@@ -71,12 +71,6 @@ function setRenderer() {
 
 function setController(){
 
-	document.body.addEventListener('click', e => {
-		
-		controls.lock();
-
-	})
-
 	document.body.addEventListener('keydown', e => {
 
 		keyIsDownMap[ e.code ] = true;
@@ -243,12 +237,8 @@ function loadMuseum( onload: Function ) {
 	Promise.all(promiseList)
 	.then( photoList =>{
 
-		setTimeout(()=>{
-			canMove = true;
-		}, 2000) // 미안합니다... 이렇게짜서...
-
 		animate();
-		onload( renderer );
+		onload( renderer, controls );
 
 		photoList = photoList.splice( 0, photoList.length - 1 );
 		for(let i = 0; i < photoList.length; i++){
@@ -493,7 +483,22 @@ function animate() {
 
 
 
-export function init( onload: Function ) {
+export function init( onload: Function, {
+	onLock,
+	onUnlock
+}:{
+	onLock: Function,
+	onUnlock: Function,
+}) {
+
+	controls.addEventListener('lock', ()=>{
+		canMove = true;
+		onLock( controls );
+	})
+	controls.addEventListener('unlock', ()=>{
+		canMove = false;
+		onUnlock( controls );
+	})
 
 	makeSkyBox();
 	setRenderer();

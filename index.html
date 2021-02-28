@@ -14,15 +14,17 @@
 			#pause {
 				width: 100%;
 				height: 100%;
-				display: none;
+
+				display: flex;
 			}
 
 		</style>
 		<link rel="stylesheet" href="./src/style/loading.css">
 		<link rel="stylesheet" href="./src/style/welcome.css">
+		<link rel="stylesheet" href="./src/style/pause.css">
 	</head>
 	<body>
-		<div id="loading" class="container">
+		<div id="loading">
 			<div id="logo">
 				IWOP
 			</div>
@@ -46,13 +48,22 @@
 			</button>
 			<div>
 			</div>
-			<div id="audio">
+			<div id="welcomeAudio">
 				audio
 				<input type="range" id="welcomeAudioBar" min="0" max="1" step="0.001">
 			</div>
 		</div>
 		<div id="pause">
-
+			<div id="title">
+				PAUSED
+			</div>
+			<div id="pauseAudio">
+				audio
+				<input type="range" id="pauseAudioBar" min="0" max="1" step="0.001">
+			</div>
+			<button id="resume">
+				resume
+			</button>
 		</div>
 	</body>
 </html>

@@ -1,21 +1,53 @@
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 import * as THREE from 'three';
 import { init } from './3d';
 
-init( loaded );
+const welcomPage = document.getElementById('welcome') as HTMLDivElement;
+const pausePage = document.getElementById('pause') as HTMLDivElement;
 
-const welcompage = document.getElementById('welcome') as HTMLDivElement;
 const enterBtn = document.getElementById('enter') as HTMLButtonElement;
+const resumeBtn = document.getElementById('resume') as HTMLInputElement;
 const welcomeAudioBar = document.getElementById('welcomeAudioBar') as HTMLInputElement;
+const pauseAudioBar = document.getElementById('pauseAudioBar') as HTMLInputElement;
 
 const audio = new Audio('./resources/sounds/clair_de_lune.mp3');
 audio.loop = true;
 
-welcomeAudioBar.onchange = e => {
-    audio.volume = +welcomeAudioBar.value
-}
 
-function loaded( renderer: THREE.WebGLRenderer ) {
-    
+let save: any;
+init( loaded , {
+    onLock: ( controls: PointerLockControls ) => {
+
+        pausePage.style.display = 'none';
+        audio.play();
+
+    },
+
+    onUnlock: ( controls: PointerLockControls ) => {
+        pausePage.style.display = 'flex';
+        audio.pause();
+        document.body.removeEventListener('click', e => {
+            controls.lock(); 
+        })
+
+        resumeBtn.onclick = () => {
+
+            controls.lock();
+
+        }
+
+    }
+});
+
+
+const audioChange = (e: Event) => {
+    audio.volume = +(e.target as HTMLInputElement).value;
+    pauseAudioBar.value = welcomeAudioBar.value = ''+audio.volume;
+}
+pauseAudioBar.onchange = audioChange;
+welcomeAudioBar.onchange = audioChange;
+
+function loaded( renderer: THREE.WebGLRenderer, controls: PointerLockControls ) {
     
     document.getElementById('loading')!.style.opacity = '0';
     setTimeout(() => {
@@ -26,12 +58,13 @@ function loaded( renderer: THREE.WebGLRenderer ) {
     enterBtn.onclick = e => {
         document.onmousemove = () => {};
         audio.crossOrigin = 'anonymous';
-        audio.play();
-
+        
+        
         document.body.appendChild( renderer.domElement );
-        welcompage.style.opacity = '0';
+        controls.lock();
+        welcomPage.style.opacity = '0';
         setTimeout(() => {
-            welcompage.style.display = 'none';
+            welcomPage.style.display = 'none';
         }, 2000)
     }
 
