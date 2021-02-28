@@ -295,7 +295,7 @@ const addArtOn = function() {
 				load( mesh );
 			}
 		},
-		console.log,
+		()=>{},
 		console.error
 	);
 
@@ -325,11 +325,8 @@ const addArtOn = function() {
 		art.position.y = 6;
 		art.position.add( new Vector3( 0, 0, 0.4 ).applyQuaternion( mesh.quaternion ) )
 		art.rotation.copy( mesh.rotation );
-<<<<<<< HEAD
-=======
 	
-		art.receiveShadow = true;
->>>>>>> 3b051766d643d2448f1d257d997a88fbe766b822
+		art.receiveShadow = false;
 
 		// 이름 텍스트 정해주는 코드.
 		const textMaterial = new THREE.MeshLambertMaterial();
