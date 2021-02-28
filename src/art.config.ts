@@ -1,6 +1,9 @@
+import * as THREE from 'three'
+
 interface art{
     name: string;
     ThumbnailPath: string;
+    Thumb2Texture?: THREE.Texture;
     isVideo?: boolean;  // @TODO: is video
     ratio?: number; 
     detail: string;

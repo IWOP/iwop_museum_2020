@@ -18,7 +18,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { ConclusionManager } from './conclusion';
 
 import { artInfos } from './art.config';
-import { Clock, Quaternion, Vector3 } from 'three';
+import { Clock, MeshBasicMaterial, Quaternion, TextureLoader, Vector3 } from 'three';
 
 
 // ================================== 장소 생성 코드 =========================================================
@@ -28,6 +28,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({
     antialias: false,
+	alpha: true,
 });
 const clock = new Clock();
 const controls = new PointerLockControls( camera, renderer.domElement);
@@ -49,6 +50,7 @@ function setRenderer() {
 	renderer.shadowMap.enabled = true;	
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor( 0xffffff, 0 ); 
 	// renderer.setPixelRatio( window.devicePixelRatio );	
 	// 본래 픽셀 깨짐 방지용으로 사용했지만, apple 기기에서의 프레임이 큰폭으로 하락해 끔.
 
@@ -154,6 +156,10 @@ const RECEIVE_BAN_LIST: string[] = [
     '큐브.018'
 ]
 
+/**
+ * @author 2021, 강성우
+ */
+// 코드를... 이딴식으로밖에 못짜서.... 죄송합니다.............
 function loadMuseum( onload: Function ) {
 
 	const loader = new GLTFLoader();
@@ -161,75 +167,97 @@ function loadMuseum( onload: Function ) {
 	dracoLoader.setDecoderPath( '/examples/js/libs/draco/' );
 	loader.setDRACOLoader( dracoLoader );
 
-	loader.load(
-		'./resources/model/iwopMuseum.glb',
-		function ( gltf ) {
+	const promiseList = [];
+	const meshList: THREE.Mesh[] = [];
 
-			// console.log(gltf.scene);
+	for(let artInfo of artInfos){
+		promiseList.push(textureLoader.loadAsync(artInfo.ThumbnailPath));
+	}
 
-			scene.add( gltf.scene );
+	const mapPromise = new Promise<void>((res, rej) => {
 
-			gltf.scene.traverse( ( node: any ) => {
+		loader.load(
+			'./resources/model/iwopMuseum.glb',
+			async function ( gltf ) {
+	
+				// console.log(gltf.scene);
+	
+				scene.add( gltf.scene );
+	
+				gltf.scene.traverse( ( node: any ) => {
+	
+					ObjectMap[ node.name ] = node;
+	
+					if( node.isMesh ){
+	
+						if( node.name.includes('frame') ){
+							
+							meshList.push( node as THREE.Mesh );
 
-                ObjectMap[ node.name ] = node;
-
-				if( node.isMesh ){
-
-					if( node.name.includes('frame') ){
-					
-						addArtOn( node as THREE.Mesh );
-
-					}	
-					
-					if( !CAST_BAN_LIST.includes( node.name ) ) {
-
-						node.castShadow = true; 
-
-					}
-					if( !RECEIVE_BAN_LIST.includes( node.name ) ) {
-
-						node.receiveShadow = true;
+						}	
 						
+						if( !CAST_BAN_LIST.includes( node.name ) ) {
+	
+							node.castShadow = true; 
+	
+						}
+						if( !RECEIVE_BAN_LIST.includes( node.name ) ) {
+	
+							node.receiveShadow = true;
+							
+						}
+	
+						conclusionManager.addCheck( node );
+	
 					}
-
-					conclusionManager.addCheck( node );
-
-				}
-                // 이름으로 판단합니다. 이름에 꼭 light를 넣어야 불빛이 나옵니다.
-				else if( node.name.includes('Light') ){
-
-					addLightOn( 
-						node.position.x,
-						node.position.y,
-						node.position.z,
-					)
-
-				}
-
-			} )
-			
-			// 퍼포먼스를 위해 자동 그림자 업데이트 막기.
-			renderer.shadowMap.autoUpdate = false;
-			renderer.shadowMap.needsUpdate = true;
-
-			setTimeout(()=>{
-				canMove = true;
-			}, 2000) // 미안합니다... 이렇게짜서...
-			onload( renderer );
-			
-			animate();
+					// 이름으로 판단합니다. 이름에 꼭 light를 넣어야 불빛이 나옵니다.
+					else if( node.name.includes('Light') ){
 	
-		},
-		function ( xhr ) {
-			
-		},
-		function ( error ) {
+						addLightOn( 
+							node.position.x,
+							node.position.y,
+							node.position.z,
+						)
 	
-			console.error( error );
+					}
 	
+				} )
+				
+				// 퍼포먼스를 위해 자동 그림자 업데이트 막기.
+				renderer.shadowMap.autoUpdate = false;
+				renderer.shadowMap.needsUpdate = true;
+	
+				res();
+		
+			},
+			function ( xhr ) {
+				
+			},
+			rej
+		);
+
+	});
+	promiseList.push(mapPromise);
+
+	
+	Promise.all(promiseList)
+	.then( photoList =>{
+
+		setTimeout(()=>{
+			canMove = true;
+		}, 2000) // 미안합니다... 이렇게짜서...
+
+		animate();
+		onload( renderer );
+
+		photoList = photoList.splice( 0, photoList.length - 1 );
+		for(let i = 0; i < photoList.length; i++){
+			artInfos[0].Thumb2Texture = photoList[i];
+			addArtOn( meshList[i] );
 		}
 
-	);
+	});
+
 
 }
 
@@ -278,30 +306,54 @@ function addLight() {
 const textureLoader = new THREE.TextureLoader();
 const fontLoader = new THREE.FontLoader();
 
-/**
- * 유지보수 하는 후배: 왜.... 이런코드를 짜는거지...?
- * @author 2021, 강성우: 그야.... 최적화니까.... 왜? 내가 미치기라도 한것같나?
- */
-const addArtOn = function() {
 
+const addArtOn = function() {
+	
 	let font: THREE.Font;
 	let waitingList: THREE.Mesh[] = [];
 
 	// 폰트 바꾸고싶으면 https://gero3.github.io/facetype.js/ 여기서 json으로 형식 변경 하세요
 	fontLoader.load('./resources/font/NanumMyeongjo_Regular.json', (_font) => {
-			font = _font;
-
-			for(let mesh of waitingList){
-				load( mesh );
-			}
-		},
-		()=>{},
+		font = _font;
+		for(let mesh of waitingList){
+			load( mesh );
+		}
+	},
+	()=>{},
 		console.error
 	);
 
+	// --
+	const textMaterial = new THREE.MeshLambertMaterial();
+	textMaterial.color.set( 0x00000 );
+
+	
 	const size = new THREE.Vector3();
 	const vector3 = new THREE.Vector3();
 	const box3 = new THREE.Box3();
+
+	function drawText( name: string, detail: string ) {
+		// 한게 글자수를 정하고 한계 글자수로 나누는 코드
+		const detailLength = 25;
+
+		let detailEdited: string[] = [];
+		for(let i = 0; i < detail.length / detailLength; i++){
+			let endPoint = Math.min((i+1)*detailLength, detail.length); 
+			detailEdited.push( detail.slice(i*detailLength, endPoint));
+		}
+		var canvas = document.createElement('canvas') as HTMLCanvasElement;
+		canvas.width = 3000;
+		canvas.height = 1200;
+		var ctx = canvas.getContext("2d");
+		ctx!.font = '130px serif';
+		ctx!.fillStyle = 'black';
+		ctx!.fillText( name, 100, 200 );
+		for(let i = 0; i < detailEdited.length; i++){
+			ctx!.fillText( detailEdited[i], 100, 500+200*i);
+			
+		}
+		return new THREE.Texture( ctx!.canvas );
+	}
 
 	function load( mesh: THREE.Mesh ) {
 
@@ -314,64 +366,39 @@ const addArtOn = function() {
 	
 		// 그림 넣어주는 코드
 		const material = new THREE.MeshLambertMaterial({
-			map: textureLoader.load( artInfo.ThumbnailPath ),
+			map: artInfo.Thumb2Texture,
 		});
 		const ratio = artInfo.ratio || 0.5;
 		const geometry = new THREE.PlaneGeometry( 5.8, 5.8*ratio );
 		const art = new THREE.Mesh(geometry, material);
 		
 		// 위치 정해주는 코드.
+
 		art.position.copy( mesh.position );
 		art.position.y = 6;
 		art.position.add( new Vector3( 0, 0, 0.4 ).applyQuaternion( mesh.quaternion ) )
 		art.rotation.copy( mesh.rotation );
 	
 		art.receiveShadow = false;
-
-		// 이름 텍스트 정해주는 코드.
-		const textMaterial = new THREE.MeshLambertMaterial();
-		textMaterial.color.set( 0x00000 );
-		const nameGeometry = new THREE.TextGeometry( artInfo.name, {
-			font,
-			size: 0.4,
-			height: 0.1,
+		
+		const textTexture = drawText( artInfo.name, artInfo.detail );
+		textTexture.needsUpdate = true;
+		const textGeometry = new THREE.PlaneGeometry( 5, 2 );
+		const textMaterial = new MeshBasicMaterial({
+			side: THREE.DoubleSide,
+			map: textTexture,
+			transparent: true
 		});
+		const text = new THREE.Mesh( textGeometry, textMaterial )
+		text.receiveShadow = true;
 
-		// 텍스트를 가운데로 모아줍니다. 
-		const name = new THREE.Mesh( nameGeometry, textMaterial );
-		box3.setFromObject( name ).getSize( size )
-		name.position.copy(art.position);
-		name.position.y = 4;
-		name.rotation.copy( art.rotation );
-		name.position.add( vector3.set( -size.x/2, 0, 0 ).applyQuaternion( mesh.quaternion ) )
+		text.position.copy( art.position );
+		text.position.y = 3.5;
+		text.quaternion.copy( mesh.quaternion );
 
-		// 한게 글자수를 정하고 한계 글자수로 나누는 코드
-		const detailLength = 20;
-
-		let detailEdited: string[] = [];
-		for(let i = 0; i < artInfo.detail.length / detailLength; i++){
-			let endPoint = Math.min((i+1)*detailLength, artInfo.detail.length); 
-			detailEdited.push( artInfo.detail.slice(i*detailLength, endPoint));
-		}
-		const detailGeometry = new THREE.TextGeometry( detailEdited.join('\n'), {
-			font,
-			size: 0.2,
-			height: 0.05
-		})
-		
-		// 설명 위치 조정
-		const detail = new THREE.Mesh( detailGeometry, textMaterial );
-		detail.position.copy( art.position );
-		detail.position.y = 4;
-		detail.position.y -= size.y;
-		box3.setFromObject( detail ).getSize( size )
-		detail.quaternion.copy( art.quaternion );
-		detail.position.add( vector3.set( -size.x/2, 0, 0 ).applyQuaternion( mesh.quaternion ) );
-		
 		// scene 에 추가
 		scene.add( art );
-		scene.add( name );
-		scene.add( detail );
+		scene.add( text )
 		
 	}
 
