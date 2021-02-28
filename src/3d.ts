@@ -10,6 +10,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { ConclusionManager } from './conclusion';
 
 import { artInfos } from './art.config';
+import { Clock } from 'three';
 
 
 // ================================== 장소 생성 코드 =========================================================
@@ -18,8 +19,9 @@ import { artInfos } from './art.config';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({
-    // antialias: true,
+    antialias: false,
 });
+const clock = new Clock();
 const controls = new PointerLockControls( camera, renderer.domElement);
 
 // my var
@@ -32,12 +34,12 @@ const conclusionManager = new ConclusionManager( controls );
 // ================================== renderer 설정 =========================================================
 
 function setRenderer() {
-	//@ts-ignore
-	renderer.gammaOutput = true;	// 블랜더 모델 색감 오류 방지
+	
+	renderer.outputEncoding = THREE.sRGBEncoding; // 블랜더 모델 색감 오류 방지
 	renderer.shadowMap.enabled = true;	
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.setPixelRatio(window.devicePixelRatio);	// 픽셀 깨짐 방지
+	// renderer.setPixelRatio( window.devicePixelRatio );	// apple 기기에서의 pixel ratio 기하학적 상승으로 끔.
 
     // 크기 변경
     window.onresize = () => {
@@ -86,11 +88,11 @@ let ObjectMap: {
     [ name: string ]: THREE.Mesh | THREE.Object3D
 } = {};
 
-function customAnimation() { 
+function customAnimation( delta: number ) { 
 
     if( ObjectMap['earth'] ){
 
-        ObjectMap['earth'].rotateY(-0.006);
+        ObjectMap['earth'].rotateY( -(delta / 2) );
 
     }
 
@@ -113,6 +115,8 @@ function makeSkyBox() {
         }
 
     )
+    // scene.background = new THREE.Color(0xdfdfdf);
+    // 끄면 프레임이 상승 할 수도 있음...
 
 }
 
@@ -120,10 +124,25 @@ function makeSkyBox() {
 // ================================== 맵 로딩 =========================================================
 
 const CAST_BAN_LIST: string[] = [
+	'wall1',
+	'wall1.001',
+	'wall1.002',
+	'wall1.003',
+	'wall1.004',
+	'wall2',
+	'wall3',
+	'wall4',
+	'텍스트',
+	'top-plane',
+	'큐브.020',
+	'큐브.021',
+    '큐브.018'
 ]
 
 const RECEIVE_BAN_LIST: string[] = [
 	'earth',	// 문자가 회전하며 그림자가 남음.
+	'텍스트',
+    '큐브.018'
 ]
 
 function loadMuseum() {
@@ -207,7 +226,7 @@ function loadMuseum() {
 
 const COLOR = 0xFFFFFF;
 const INTENSITY = 1;
-const LIGHT_DISTANCE = 20;
+const LIGHT_DISTANCE = 40;
 
 
 function addLightOn( x:number, y:number, z:number ) {
@@ -218,7 +237,7 @@ function addLightOn( x:number, y:number, z:number ) {
 
 	// shadow map 치명적 오류 방지
 	light.shadow.bias = -0.001;
-	light.shadow.mapSize.set( 1024, 1024 );
+	light.shadow.mapSize.set( 512, 512 );
 
 	light.castShadow = true;
 	scene.add(light);
@@ -245,7 +264,7 @@ function addLight() {
 // ================================== 작품 전시 ==========================================================
 
 function addArtOn( mesh: THREE.Mesh ) {
-	mesh.position
+	
 }
 
 
@@ -262,7 +281,7 @@ function setCamera() {
 
 // ================================== 이동, 충돌 =========================================================
 
-const DISTANCE = 0.05;
+let DISTANCE = 0.05;
 
 let fowardSpeed = 0;
 let backwardSpeed = 0;
@@ -275,15 +294,16 @@ let tempRight = 0;
 let moved = false;
 
 
-function move() {
+function move( delta: number ) {
 
 	fowardSpeed = 0;
 	rightSpeed = 0;
 	leftSpeed = 0;
 	backwardSpeed = 0;
 
+	DISTANCE = delta * 6;
+
 	moved = false;
-	
 	if( keyIsDownMap['KeyW'] ) {
 
 		fowardSpeed = DISTANCE;
@@ -340,12 +360,14 @@ function move() {
 // ================================== 1 frame 마다 실행 =========================================================
 
 function animate() {
-
-	requestAnimationFrame( animate );
-    customAnimation();
-	move();
-	renderer.render(scene, camera);
+	const delta = clock.getDelta();
 	
+	requestAnimationFrame( animate );
+    customAnimation( delta );
+	move( delta );
+	renderer.render( scene, camera );
+	
+	// console.log(renderer.info.render, delta)
 }
 
 // ================================== 맨 처음 =========================================================
