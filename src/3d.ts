@@ -531,12 +531,10 @@ export function init( onload: Function, {
 
 	controls.addEventListener('lock', ()=>{
 		canMove = true;
-		console.log('lock')
 		onLock( controls );
 	})
 	controls.addEventListener('unlock', ()=>{
 		canMove = false;
-		console.log('unlock')
 		onUnlock( controls );
 	})
 

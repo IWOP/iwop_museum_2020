@@ -2,7 +2,6 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import * as THREE from 'three';
 import { init } from './3d';
 import { ready as MMDready, mmdAudio } from './easterEgg';
-import './easterEgg';
 
 const welcomPage = document.getElementById('welcome') as HTMLDivElement;
 const pausePage = document.getElementById('pause') as HTMLDivElement;

@@ -15,12 +15,11 @@ export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, contro
 
     const helper = new MMDAnimationHelper();
     const loader = new MMDLoader();
+    const audioLoader = new THREE.AudioLoader();
 
 
     const listener = new THREE.AudioListener();
     camera.add( listener );
-
-    console.log('init')
 
     easterEggBtn.onclick = () => {
         let inputed = prompt('패스워드 입력: ');
@@ -49,10 +48,12 @@ export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, contro
                     animation: mmd.animation,
                 })
                 
-                
-                new THREE.AudioLoader().load( 'resources/forEasterEgg/wavefile_short.mp3', function ( buffer ) {
-                    
+                console.log('a')
+                audioLoader.load( './resources/forEasterEgg/wavefile_short.mp3', function ( buffer ) {
+                    console.log('b')
                     mmdAudio = new THREE.Audio( listener ).setBuffer( buffer );
+                    console.log(mmdAudio, buffer)
+                    
                     
                     controls.lock();
                     bgm.pause();
