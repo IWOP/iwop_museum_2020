@@ -1,6 +1,8 @@
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 import * as THREE from 'three';
 import { init } from './3d';
+import { ready as MMDready, mmdAudio } from './easterEgg';
+import './easterEgg';
 
 const welcomPage = document.getElementById('welcome') as HTMLDivElement;
 const pausePage = document.getElementById('pause') as HTMLDivElement;
@@ -10,7 +12,10 @@ const resumeBtn = document.getElementById('resume') as HTMLInputElement;
 const welcomeAudioBar = document.getElementById('welcomeAudioBar') as HTMLInputElement;
 const pauseAudioBar = document.getElementById('pauseAudioBar') as HTMLInputElement;
 
-const audio = new Audio('./resources/sounds/clair_de_lune.mp3');
+const easterEggBtn = document.getElementById('easterEgg') as HTMLButtonElement;
+export let mmdPause = false;
+
+export const audio = new Audio('./resources/sounds/clair_de_lune.mp3');
 audio.loop = true;
 
 
@@ -18,13 +23,28 @@ let save: any;
 init( loaded , {
     onLock: ( controls: PointerLockControls ) => {
 
+        easterEggBtn.style.display = 'none';
         pausePage.style.display = 'none';
-        audio.play();
+
+        if( !MMDready ) {
+
+            audio.play();
+
+        }
+        else{
+            
+            mmdPause = false;
+            if( mmdAudio.offset > 160 / 30 ){
+                mmdAudio.play();
+            }
+            
+        }
 
     },
 
     onUnlock: ( controls: PointerLockControls ) => {
         pausePage.style.display = 'flex';
+        easterEggBtn.style.display = 'block';
         audio.pause();
         document.body.removeEventListener('click', e => {
             controls.lock(); 
@@ -36,12 +56,22 @@ init( loaded , {
 
         }
 
+        if( MMDready ){
+            
+            mmdPause = true;
+            mmdAudio.pause();
+
+        }
+
     }
 });
 
 
 const audioChange = (e: Event) => {
     audio.volume = +(e.target as HTMLInputElement).value;
+    if( mmdAudio ){
+        mmdAudio.setVolume( audio.volume );
+    }
     pauseAudioBar.value = welcomeAudioBar.value = ''+audio.volume;
 }
 pauseAudioBar.onchange = audioChange;

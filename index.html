@@ -18,10 +18,34 @@
 				display: flex;
 			}
 
+			#easterEgg{
+
+				display: none;
+				position: absolute;
+
+				right: 0;
+				
+				background-color: rgba(0, 0, 0, 0);
+				border: 0px solid black;
+				
+				color: gray;
+
+				width: 100px;
+				height: 100px;
+
+			}
+
 		</style>
 		<link rel="stylesheet" href="./src/style/loading.css">
 		<link rel="stylesheet" href="./src/style/welcome.css">
 		<link rel="stylesheet" href="./src/style/pause.css">
+		<script src="dist/ammo.wasm.js" id="ammojs"></script>
+		<script>
+			// ammo.js update
+			Ammo().then( function( AmmoLib ) {
+				Ammo = AmmoLib
+			} );
+		</script>
 	</head>
 	<body>
 		<div id="loading">
@@ -65,5 +89,8 @@
 				resume
 			</button>
 		</div>
+		<button id="easterEgg">
+			???
+		</button>
 	</body>
 </html>

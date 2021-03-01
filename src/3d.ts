@@ -18,7 +18,12 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { ConclusionManager } from './conclusion';
 
 import { artInfos } from './art.config';
-import { Clock, MeshBasicMaterial, Quaternion, TextureLoader, Vector3 } from 'three';
+import { Clock, MeshBasicMaterial, Vector3 } from 'three';
+import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper';
+
+import { init as mmdInit, ready as MMDready } from './easterEgg';
+import { mmdPause } from './index';
+
 
 
 // ================================== 장소 생성 코드 =========================================================
@@ -96,6 +101,10 @@ let ObjectMap: {
 function customAnimation( delta: number ) { 
 
     if( ObjectMap['earth'] ){
+		
+		if( MMDready ){
+			ObjectMap['earth'].visible = false;
+		}
 
         ObjectMap['earth'].rotateY( -(delta / 2) );
 
@@ -469,9 +478,14 @@ function move( delta: number, speed = 6 ) {
 
 // ================================== 1 frame 마다 실행 =========================================================
 
+let mmdHelper: MMDAnimationHelper;
+
 function animate() {
 	const delta = clock.getDelta();
-	
+
+	if( mmdHelper && MMDready && !mmdPause ){
+		mmdHelper.update( delta );
+	}
 	requestAnimationFrame( animate );
     customAnimation( delta );
 	move( delta );
@@ -505,6 +519,7 @@ export function init( onload: Function, {
 	setController();
 	addLight();
 	setCamera();
+	mmdHelper = mmdInit( scene, camera, controls );
 	loadMuseum( onload );
 
 }
