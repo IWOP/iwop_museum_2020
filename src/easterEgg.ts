@@ -36,7 +36,7 @@ export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, contro
         loadingPage.style.opacity = '1';
         loadingPage.style.display = 'flex';
         loader.loadWithAnimation(
-            './resources/forEasterEgg/sour-M/black.pmx', 
+            './resources/forEasterEgg/sour-M/Black.pmx', 
             './resources/forEasterEgg/wavefile_motion/wavefile_v2.vmd',
             (mmd) => {
                 

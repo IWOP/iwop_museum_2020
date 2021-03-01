@@ -65,7 +65,7 @@ function setRenderer() {
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor( 0xffffff, 0 ); 
-	// renderer.setPixelRatio( window.devicePixelRatio );	
+	renderer.setPixelRatio( window.devicePixelRatio );
 	// 본래 픽셀 깨짐 방지용으로 사용했지만, apple 기기에서의 프레임이 큰폭으로 하락해 끔.
 
     // 크기 변경
