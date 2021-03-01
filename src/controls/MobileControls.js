@@ -4,6 +4,14 @@ import {
 	Vector3
 } from 'three';
 
+/**
+ * three.js 의 PointerLockControls를 임의로 개조하여 모바일에서 사용 할 수 있게 하였습니다.
+ * @todo 모바일에서 이동과 화면 돌리기 동시에 할 수 있게 하기 ( 쉬워보임! )
+ * 
+ * @param {THREE.Camera} camera 
+ * @param {HTMLElement} domElement 
+ */
+
 var MobileControls = function ( camera, domElement ) {
 
 	if ( domElement === undefined ) {

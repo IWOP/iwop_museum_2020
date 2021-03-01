@@ -1,10 +1,12 @@
 import * as THREE from 'three'
-
+/**
+ * @todo is video 를 구현시켜야 합니다.
+ */
 interface art{
     name: string;
     ThumbnailPath: string;
     Thumb2Texture?: THREE.Texture;
-    isVideo?: boolean;  // @TODO: is video
+    isVideo?: boolean;
     ratio?: number; 
     detail: string;
 }

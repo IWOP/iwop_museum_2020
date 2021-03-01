@@ -11,13 +11,19 @@ const easterEggBtn = document.getElementById('easterEgg') as HTMLButtonElement;
 export let ready = false;
 export let mmdAudio: THREE.Audio;
 
+/**
+ * @todo ios 기기들에서 사운드가 플레이되지 않음 ( 어려울 수도 있음 )
+ * @todo 의존성 줄이기. ( 어려울 수도 있음 )
+ * @author 2021, 강성우
+ */
+
+// 맨 처음 init ( 추가하는게 아님 )
 export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, controls: PointerLockControls): MMDAnimationHelper{
 
+    // mmd var
     const helper = new MMDAnimationHelper();
     const loader = new MMDLoader();
     const audioLoader = new THREE.AudioLoader();
-
-
     const listener = new THREE.AudioListener();
     camera.add( listener );
 
@@ -31,6 +37,7 @@ export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, contro
         }
     }
     
+    // 비밀번호 맞았을때
     function correct() {
         loadingPage.style.opacity = '1';
         loadingPage.style.display = 'flex';
@@ -48,12 +55,10 @@ export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, contro
                     animation: mmd.animation,
                 })
                 
-                console.log('a')
+                
                 audioLoader.load( './resources/forEasterEgg/wavefile_short.mp3', function ( buffer ) {
-                    console.log('b')
-                    mmdAudio = new THREE.Audio( listener ).setBuffer( buffer );
-                    console.log(mmdAudio, buffer)
                     
+                    mmdAudio = new THREE.Audio( listener ).setBuffer( buffer );      
                     
                     controls.lock();
                     bgm.pause();
@@ -68,16 +73,23 @@ export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, contro
                     ready = true;
 
                     loadingPage.style.opacity = '0';
+
                     setTimeout(()=>{
+
                         loadingPage.style.display = 'none';
+
                     }, 2000);
 
                 }, ()=>{}, console.error );
-                
+
             }, function (xhr) {
+
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
             }, console.error
+
         );
+
     }
 
     return helper;

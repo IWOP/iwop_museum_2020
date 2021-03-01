@@ -1,3 +1,11 @@
+/**
+ * @TODO: 개선안
+ * 렉이 걸릴때 가끔 벽을 넘을때가 있습니다.
+ * rayCaster의 충돌 감지값을 넓게 잡고
+ * 충돌 거리를 delta * speed 와 비교해서
+ * 충돌 처리를 다시 해야할꺼 같습니다. ( 쉬워보임! )
+ * @author 2021, 강성우.
+ */
 import * as THREE from 'three';
 import { Euler, Quaternion, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';

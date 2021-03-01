@@ -18,8 +18,8 @@ export const audio = new Audio('./resources/sounds/clair_de_lune.mp3');
 audio.loop = true;
 
 
-let save: any;
 init( loaded , {
+    // pointerLock 또는 모바일 조작모드
     onLock: ( controls: PointerLockControls ) => {
 
         easterEggBtn.style.display = 'none';
@@ -42,7 +42,7 @@ init( loaded , {
         }
 
     },
-
+    // pointerLock 나감 또는 모바일 일시정지 누름
     onUnlock: ( controls: PointerLockControls ) => {
         pausePage.style.display = 'flex';
         if( !MMDready ) {
@@ -73,8 +73,14 @@ init( loaded , {
     }
 });
 
-// 볼륨바 바꾸는 코드
-const audioChange = (e: Event) => {
+/**
+ * 볼륨바 바꾸는 코드
+ * 
+ * 알아두면 좋은것! 단항 + 연산자.
+ * 지금 당장 콘솔에 ('ba' + + 'a' + 'a').toLowerCase(); 를 쳐보세요.
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Unary_plus
+ */
+welcomeAudioBar.onchange = pauseAudioBar.onchange = (e: Event) => {
 
     audio.volume = +(e.target as HTMLInputElement).value;
     if( mmdAudio ) {
@@ -83,9 +89,9 @@ const audioChange = (e: Event) => {
 
     }
     pauseAudioBar.value = welcomeAudioBar.value = ''+audio.volume;
+
 }
-pauseAudioBar.onchange = audioChange;
-welcomeAudioBar.onchange = audioChange;
+
 
 // 렌더링 하는 코드
 function loaded( renderer: THREE.WebGLRenderer, controls: PointerLockControls ) {

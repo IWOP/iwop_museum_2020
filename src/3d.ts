@@ -1,3 +1,7 @@
+/**
+ * TS에 오페라 브라우저 에러 방지용.
+ * @author 2021, 강성우.
+ */
 declare global {
 	interface Window {
 		opera: any;
@@ -5,9 +9,30 @@ declare global {
 }
 export let isMobileOrTablet = false;
 (function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) isMobileOrTablet = true; })(navigator.userAgent || navigator.vendor || window.opera);
+/**
+ * IPAD를 컴퓨터로 인식 문제 해결용.
+ * https://stackoverflow.com/questions/57776001/how-to-detect-ipad-pro-as-ipad-using-javascript
+ * @author 2021, 강성우
+ */
+function isIOS(): boolean {
+	if (/iPad|iPhone|iPod/.test(navigator.platform)) {
+		return true;
+	} else {
+		return navigator.maxTouchPoints !== undefined &&
+			navigator.maxTouchPoints > 2 &&
+			/MacIntel/.test(navigator.platform);
+	}
+}
+function isIpadOS(): boolean {
+	return navigator.maxTouchPoints != undefined &&
+		navigator.maxTouchPoints > 2 &&
+		/MacIntel/.test(navigator.platform);
+}
+isMobileOrTablet = isMobileOrTablet || isIpadOS() || isIOS();
 
 /**
- * 
+ * @todo 코어코드를 3일 내지에 짯기때문에,
+ * 의존성은 끈적하다못해 굳어버렸습니다. 의존성 해결이 필요합니다.
  * @author 2021, 강성우.
  */
 
@@ -107,6 +132,7 @@ let ObjectMap: {
     [ name: string ]: THREE.Mesh | THREE.Object3D
 } = {};
 
+// 커스텀 애니메이션
 function customAnimation( delta: number ) { 
 
     if( ObjectMap['earth'] ){
@@ -124,6 +150,7 @@ function customAnimation( delta: number ) {
 // ================================== skyBox =========================================================
 
 
+// 스카이박스, 끄면 프레임이 상승 할 수도 있음...
 function makeSkyBox() {
 
     const loader = new THREE.TextureLoader();
@@ -139,8 +166,6 @@ function makeSkyBox() {
 
     )
     // scene.background = new THREE.Color(0xdfdfdf);
-    // 끄면 프레임이 상승 할 수도 있음...
-
 }
 
 
@@ -165,13 +190,13 @@ const CAST_BAN_LIST: string[] = [
 const RECEIVE_BAN_LIST: string[] = [
 	'earth',	// 문자가 회전하며 그림자가 남음.
 	'텍스트',
-    '큐브.018'
+    '큐브.018'	// 굳이 receive 하지 않아도 되는것들.
 ]
 
 /**
+ * 박물관 로딩 코드
  * @author 2021, 강성우
  */
-// 코드를... 이딴식으로밖에 못짜서.... 죄송합니다.............
 function loadMuseum( onload: Function ) {
 
 	const loader = new GLTFLoader();
@@ -182,10 +207,12 @@ function loadMuseum( onload: Function ) {
 	const promiseList = [];
 	const meshList: THREE.Mesh[] = [];
 
+	// 프로미스 리스트에 넣어서 준비 ( promise.all 사용 위함 )
 	for(let artInfo of artInfos){
 		promiseList.push(textureLoader.loadAsync(artInfo.ThumbnailPath));
 	}
 
+	// promise.all 사용 위해 프로미스 화.
 	const mapPromise = new Promise<void>((res, rej) => {
 
 		loader.load(
@@ -242,23 +269,23 @@ function loadMuseum( onload: Function ) {
 				res();
 		
 			},
-			function ( xhr ) {
-				
-			},
+			()=>{},
 			rej
+
 		);
 
 	});
 	promiseList.push(mapPromise);
 
-	
+
 	Promise.all(promiseList)
 	.then( photoList =>{
 
 		animate();
 		onload( renderer, controls );
+		// 맵 로딩한거 제외하기
+		photoList = photoList.splice( 0, photoList.length - 1 ); 
 
-		photoList = photoList.splice( 0, photoList.length - 1 );
 		for(let i = 0; i < photoList.length; i++){
 			artInfos[0].Thumb2Texture = photoList[i];
 			addArtOn( meshList[i] );
@@ -314,25 +341,28 @@ function addLight() {
 const textureLoader = new THREE.TextureLoader();
 const fontLoader = new THREE.FontLoader();
 
-
+/**
+ * 작품을 추가하는 함수.
+ * 함수안에 함수를 넣는이유는 
+ * 수학 관련 함수를 한번만 만들어 최적화를 하기 위함입니다.
+ * 밖에 선언하면 충돌이 날 위험이 있습니다.
+ */
 const addArtOn = function() {
-
-	const textMaterial = new THREE.MeshLambertMaterial();
-	textMaterial.color.set( 0x00000 );
 	
 	const size = new THREE.Vector3();
 	const vector3 = new THREE.Vector3();
 	const box3 = new THREE.Box3();
 
+	// 텍스트를 캔버스로 그리고, 그걸 텍스쳐로 만들어 리턴하는 함수.
 	function drawText( name: string, detail: string ) {
 		// 한게 글자수를 정하고 한계 글자수로 나누는 코드
 		const detailLength = 25;
-
 		let detailEdited: string[] = [];
 		for(let i = 0; i < detail.length / detailLength; i++){
 			let endPoint = Math.min((i+1)*detailLength, detail.length); 
 			detailEdited.push( detail.slice(i*detailLength, endPoint));
 		}
+		// 캔버스에 그리고 쓰는 코드
 		var canvas = document.createElement('canvas') as HTMLCanvasElement;
 		canvas.width = 3000;
 		canvas.height = 1200;
@@ -340,15 +370,16 @@ const addArtOn = function() {
 		ctx!.font = '130px serif';
 		ctx!.fillStyle = 'black';
 		ctx!.fillText( name, 100, 200 );
+		// 가상 엔터 생성
 		for(let i = 0; i < detailEdited.length; i++){
 			ctx!.fillText( detailEdited[i], 100, 500+200*i);
-			
 		}
 		return new THREE.Texture( ctx!.canvas );
 	}
 
-	function load( mesh: THREE.Mesh ) {
-
+	// 실제 addArtOn 함수.
+	return function ( mesh: THREE.Mesh ) {
+		// 정보 불러옴.
 		const artInfo = artInfos.splice( 0, 1 )[0];
 	
 		// 그림 넣어주는 코드
@@ -360,14 +391,14 @@ const addArtOn = function() {
 		const art = new THREE.Mesh(geometry, material);
 		
 		// 위치 정해주는 코드.
-
 		art.position.copy( mesh.position );
 		art.position.y = 6;
 		art.position.add( new Vector3( 0, 0, 0.4 ).applyQuaternion( mesh.quaternion ) )
-		art.rotation.copy( mesh.rotation );
+		art.quaternion.copy( mesh.quaternion );
 	
 		art.receiveShadow = false;
-		
+	
+		// 텍스트 추가 코드
 		const textTexture = drawText( artInfo.name, artInfo.detail );
 		textTexture.needsUpdate = true;
 		const textGeometry = new THREE.PlaneGeometry( 5, 2 );
@@ -379,6 +410,7 @@ const addArtOn = function() {
 		const text = new THREE.Mesh( textGeometry, textMaterial )
 		text.receiveShadow = true;
 
+		// 텍스트 위치 코드
 		text.position.copy( art.position );
 		text.position.y = 3.5;
 		text.quaternion.copy( mesh.quaternion );
@@ -388,9 +420,6 @@ const addArtOn = function() {
 		scene.add( text )
 		
 	}
-
-	return load;
-	
 }()
 
 
@@ -483,6 +512,7 @@ function move( delta: number, speed = 6 ) {
 		tempRight = rightSpeed - leftSpeed;
 	}
 
+	// 충돌 한다면
 	if( conclusionManager.isBlock( tempForward, tempRight ) ) {
 
 		tempForward = 0;
@@ -490,7 +520,8 @@ function move( delta: number, speed = 6 ) {
 		return;
 
 	}
-	
+
+	// 움직였다면
 	if( moved ){
 		
 		controls.moveForward( tempForward );
@@ -505,6 +536,7 @@ function move( delta: number, speed = 6 ) {
 let mmdHelper: MMDAnimationHelper;
 
 function animate() {
+
 	const delta = clock.getDelta();
 
 	if( mmdHelper && MMDready && !mmdPause ){
