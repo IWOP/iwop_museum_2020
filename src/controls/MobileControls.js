@@ -6,7 +6,6 @@ import {
 
 /**
  * three.js 의 PointerLockControls를 임의로 개조하여 모바일에서 사용 할 수 있게 하였습니다.
- * @todo 모바일에서 이동과 화면 돌리기 동시에 할 수 있게 하기 ( 쉬워보임! )
  * 
  * @param {THREE.Camera} camera 
  * @param {HTMLElement} domElement 
@@ -45,27 +44,21 @@ var MobileControls = function ( camera, domElement ) {
 	this._moveDom.style.background = 'rgba(0,0,0,0.5)';
 	this._moveDom.style.borderRadius = '100%';
 	this._moveDom.style.border = ' 3px solid rgba(256,256,256,0.4)';
-	
+
 	var firstMoveTouched = [0, 0]
 	var nowMove = [0, 0]
 	this._moveDom.ontouchmove = event => {
 
 		event.preventDefault();
 
-		const pageX = event.pageX || event.touches[0].pageX;
-		const pageY = event.pageY || event.touches[0].pageY;
-
-		nowMove[0] = event.touches[0].pageX - firstMoveTouched[0];
-		nowMove[1] = -(event.touches[0].pageY - firstMoveTouched[1]);
+		nowMove[0] = event.changedTouches[0].pageX - firstMoveTouched[0];
+		nowMove[1] = -(event.changedTouches[0].pageY - firstMoveTouched[1]);
 		
 	}
 	this._moveDom.ontouchstart = event => {
 
-		const pageX = event.pageX || event.touches[0].pageX;
-		const pageY = event.pageY || event.touches[0].pageY;
-
-		firstMoveTouched[0] = pageX;
-		firstMoveTouched[1] = pageY;
+		firstMoveTouched[0] = event.changedTouches[0].pageX;
+		firstMoveTouched[1] = event.changedTouches[0].pageY;
 
 	}
 	this._moveDom.ontouchend = e => {
@@ -130,11 +123,11 @@ var MobileControls = function ( camera, domElement ) {
 
 		if ( scope.isLocked === false ) return;
 
-		var movementX = beforeTouch[0] - event.touches[0].screenX;
-		var movementY = beforeTouch[1] - event.touches[0].screenY;
+		var movementX = beforeTouch[0] - event.changedTouches[0].screenX;
+		var movementY = beforeTouch[1] - event.changedTouches[0].screenY;
 
-		beforeTouch[0] = event.touches[0].screenX;
-		beforeTouch[1] = event.touches[0].screenY;
+		beforeTouch[0] = event.changedTouches[0].screenX;
+		beforeTouch[1] = event.changedTouches[0].screenY;
 		
 		euler.setFromQuaternion( camera.quaternion );
 
@@ -153,8 +146,8 @@ var MobileControls = function ( camera, domElement ) {
 
 		scope.isLocked = true;
 
-		beforeTouch[0] = event.touches[0].screenX;
-		beforeTouch[1] = event.touches[0].screenY;
+		beforeTouch[0] = event.changedTouches[0].screenX;
+		beforeTouch[1] = event.changedTouches[0].screenY;
 
 	}
 	function onMouseUp() {
