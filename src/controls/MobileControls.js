@@ -117,7 +117,7 @@ var MobileControls = function ( camera, domElement ) {
 
 	var beforeTouch = [0,0];
 
-	function onMouseMove( event ) {
+	function onTouchMove( event ) {
 
 		event.preventDefault();
 
@@ -142,7 +142,7 @@ var MobileControls = function ( camera, domElement ) {
 
 	}
 
-	function onMouseDown( event ) {
+	function onTocuhStart( event ) {
 
 		scope.isLocked = true;
 
@@ -150,7 +150,7 @@ var MobileControls = function ( camera, domElement ) {
 		beforeTouch[1] = event.changedTouches[0].screenY;
 
 	}
-	function onMouseUp() {
+	function onTouchEnd() {
 
 		scope.isLocked = false;
 
@@ -164,17 +164,17 @@ var MobileControls = function ( camera, domElement ) {
 
 	this.connect = function () {
 
-		scope.domElement.addEventListener( 'touchmove', onMouseMove, false );
-		scope.domElement.addEventListener( 'touchstart', onMouseDown, false );
-		scope.domElement.addEventListener( 'touchend', onMouseUp, false );
+		scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
+		scope.domElement.addEventListener( 'touchstart', onTocuhStart, false );
+		scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
 
 	};
 
 	this.disconnect = function () {
 
-		scope.domElement.addEventListener( 'touchmove', onMouseMove, false );
-		scope.domElement.addEventListener( 'touchstart', onMouseDown, false );
-		scope.domElement.addEventListener( 'touchend', onMouseUp, false );
+		scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
+		scope.domElement.addEventListener( 'touchstart', onTocuhStart, false );
+		scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
 
 	};
 
