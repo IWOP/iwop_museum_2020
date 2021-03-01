@@ -91,7 +91,8 @@ function setRenderer() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor( 0xffffff, 0 ); 
 	renderer.setPixelRatio( window.devicePixelRatio );
-	// 본래 픽셀 깨짐 방지용으로 사용했지만, apple 기기에서의 프레임이 큰폭으로 하락해 끔.
+	// 픽셀 깨짐 방지용입니다. 모바일에서는 필수 불가결 하나
+	// 컴퓨터에서는 필수가 아니니 isMobileOrTablet 에 따라 비활성화 해도 좋습니다.
 
     // 크기 변경
     window.onresize = () => {
@@ -218,8 +219,6 @@ function loadMuseum( onload: Function ) {
 		loader.load(
 			'./resources/model/iwopMuseum.glb',
 			async function ( gltf ) {
-	
-				// console.log(gltf.scene);
 	
 				scene.add( gltf.scene );
 	

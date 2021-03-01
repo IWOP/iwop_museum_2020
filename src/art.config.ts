@@ -55,6 +55,6 @@ export const artInfos: art[] = [
     {
         name: 'YaCHT',
         ThumbnailPath: './resources/images/arts/YaCHT.png',
-        detail: '온라인 야추'
+        detail: '온라인 yahtzee'
     }
 ];
