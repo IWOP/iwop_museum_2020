@@ -35,7 +35,9 @@ init( loaded , {
             
             mmdPause = false;
             if( mmdAudio.offset > 160 / 30 ){
+
                 mmdAudio.play();
+
             }
             
         }
@@ -44,10 +46,16 @@ init( loaded , {
 
     onUnlock: ( controls: PointerLockControls ) => {
         pausePage.style.display = 'flex';
-        easterEggBtn.style.display = 'block';
+        if( !MMDready ) {
+            
+            easterEggBtn.style.display = 'block';
+
+        }
         audio.pause();
         document.body.removeEventListener('click', e => {
+
             controls.lock(); 
+
         })
 
         resumeBtn.onclick = () => {
@@ -66,22 +74,28 @@ init( loaded , {
     }
 });
 
-
+// 볼륨바 바꾸는 코드
 const audioChange = (e: Event) => {
+
     audio.volume = +(e.target as HTMLInputElement).value;
-    if( mmdAudio ){
+    if( mmdAudio ) {
+
         mmdAudio.setVolume( audio.volume );
+
     }
     pauseAudioBar.value = welcomeAudioBar.value = ''+audio.volume;
 }
 pauseAudioBar.onchange = audioChange;
 welcomeAudioBar.onchange = audioChange;
 
+// 렌더링 하는 코드
 function loaded( renderer: THREE.WebGLRenderer, controls: PointerLockControls ) {
     
     document.getElementById('loading')!.style.opacity = '0';
     setTimeout(() => {
+
         document.getElementById('loading')!.style.display = 'none';
+
     }, 2000)
     
     // 사용자가 interect 하지 않으면 노래는 시작되지 않습니다. ( 보안 정책 )
@@ -94,7 +108,9 @@ function loaded( renderer: THREE.WebGLRenderer, controls: PointerLockControls ) 
         controls.lock();
         welcomPage.style.opacity = '0';
         setTimeout(() => {
+
             welcomPage.style.display = 'none';
+
         }, 2000)
     }
 
