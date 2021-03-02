@@ -33,6 +33,12 @@ isMobileOrTablet = isMobileOrTablet || isIpadOS() || isIOS();
 /**
  * @todo 코어코드를 3일 내지에 짯기때문에,
  * 의존성은 끈적하다못해 굳어버렸습니다. 의존성 해결이 필요합니다.
+ * 
+ * @todo 제생각에는, Blender로 모델링을 시작한순간부터 최적화가 꼬이기 시작한것 같습니다.
+ * map.config.ts 등의 파일을 따로 분리하여 만들 필요가 있어보입니다.
+ * 명심하십시요, Blender는 보기는 좋아보이지만 three.js의 퍼포먼스를 엄청나게 낮출 가능성이 있습니다!
+ * ( 최대한 three.js 내부에서 해결하십시오. )
+ * 
  * @author 2021, 강성우.
  */
 
@@ -212,8 +218,10 @@ function loadMuseum( onload: Function ) {
 	const frameList: THREE.Mesh[] = [];
 
 	// 프로미스 리스트에 넣어서 준비 ( promise.all 사용 위함 )
-	for(let artInfo of artInfos){
+	for( const artInfo of artInfos ){
+
 		promiseList.push(textureLoader.loadAsync(artInfo.ThumbnailPath));
+
 	}
 
 	// promise.all 사용 위해 프로미스 화.
@@ -479,6 +487,7 @@ function move( delta: number, speed = 6 ) {
 	DISTANCE = delta * speed;
 
 	moved = false;
+	// 모바일
 	if ( isMobileOrTablet && controls.getMove !== undefined ) {
 
 		const move = controls.getMove();
@@ -491,6 +500,7 @@ function move( delta: number, speed = 6 ) {
 		}
 		
 	}
+	// PC
 	else{
 
 		if( keyIsDownMap['KeyW'] ) {
@@ -554,13 +564,14 @@ function move( delta: number, speed = 6 ) {
 let mmdHelper: MMDAnimationHelper;
 
 function animate() {
+	
+	requestAnimationFrame( animate );
 
 	const delta = clock.getDelta();
 
 	if( mmdHelper && MMDready && !mmdPause ){
 		mmdHelper.update( delta );
 	}
-	requestAnimationFrame( animate );
     customAnimation( delta );
 	move( delta );
 	renderer.render( scene, camera );

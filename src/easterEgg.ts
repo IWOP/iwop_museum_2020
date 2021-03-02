@@ -12,12 +12,13 @@ export let ready = false;
 export let mmdAudio: THREE.Audio;
 
 /**
- * @todo ios 기기들에서 사운드가 플레이되지 않음 ( 어려울 수도 있음 )
- * @todo 의존성 줄이기. ( 어려울 수도 있음 )
+ * @todo ios 기기들에서 사운드가 플레이되지 않음 ( 어려움 )
+ * @todo 의존성 줄이기. ( 어려움 )
+ * 
  * @author 2021, 강성우
  */
 
-// 맨 처음 init ( 추가하는게 아님 )
+// 맨 처음 init ( 모델을 추가하는게 아님 )
 export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, controls: PointerLockControls): MMDAnimationHelper{
 
     // mmd var
@@ -45,7 +46,7 @@ export function init(scene: THREE.Scene, camera: THREE.PerspectiveCamera, contro
             './resources/forEasterEgg/sour-M/Black.pmx', 
             './resources/forEasterEgg/wavefile_motion/wavefile_v2.vmd',
             (mmd) => {
-                
+
                 mmd.mesh.position.set(21, 1, 0);
                 mmd.mesh.scale.set( 0.5, 0.5, 0.5 );
                 mmd.mesh.rotateY(-Math.PI/2);
