@@ -50,6 +50,7 @@ import { MobileControls } from './controls/MobileControls';
 
 import { init as mmdInit, ready as MMDready } from './easterEgg';
 import { mmdPause } from './index';
+import { NoEmitOnErrorsPlugin } from 'webpack';
 
 
 
@@ -138,8 +139,10 @@ function customAnimation( delta: number ) {
 
     if( ObjectMap['earth'] ){
 		
-		if( MMDready ){
+		if( MMDready ) {
+
 			ObjectMap['earth'].visible = false;
+
 		}
 
         ObjectMap['earth'].rotateY( -(delta / 2) );
@@ -151,7 +154,7 @@ function customAnimation( delta: number ) {
 // ================================== skyBox =========================================================
 
 
-// 스카이박스, 끄면 프레임이 상승 할 수도 있음...
+// 스카이박스, 끄면 프레임이 상승, 텍스쳐 최적화 가능성 있음.
 function makeSkyBox() {
 
     const loader = new THREE.TextureLoader();
@@ -206,7 +209,7 @@ function loadMuseum( onload: Function ) {
 	loader.setDRACOLoader( dracoLoader );
 
 	const promiseList = [];
-	const meshList: THREE.Mesh[] = [];
+	const frameList: THREE.Mesh[] = [];
 
 	// 프로미스 리스트에 넣어서 준비 ( promise.all 사용 위함 )
 	for(let artInfo of artInfos){
@@ -219,8 +222,9 @@ function loadMuseum( onload: Function ) {
 		loader.load(
 			'./resources/model/iwopMuseum.glb',
 			async function ( gltf ) {
-	
-				scene.add( gltf.scene );
+
+				gltf.scene.matrixAutoUpdate = false;
+				gltf.scene.matrixWorldNeedsUpdate = true;
 	
 				gltf.scene.traverse( ( node: any ) => {
 	
@@ -230,7 +234,7 @@ function loadMuseum( onload: Function ) {
 	
 						if( node.name.includes('frame') ){
 							
-							meshList.push( node as THREE.Mesh );
+							frameList.push( node as THREE.Mesh );
 
 						}	
 						
@@ -246,24 +250,26 @@ function loadMuseum( onload: Function ) {
 						}
 	
 						conclusionManager.addCheck( node );
-	
+						
 					}
 					// 이름으로 판단합니다. 이름에 꼭 light를 넣어야 불빛이 나옵니다.
 					else if( node.name.includes('Light') ){
-	
+						
 						addLightOn( 
 							node.position.x,
 							node.position.y,
 							node.position.z,
 						)
-	
+							
 					}
-	
-				} )
-				
+						
+				} );
+
 				// 퍼포먼스를 위해 자동 그림자 업데이트 막기.
 				renderer.shadowMap.autoUpdate = false;
 				renderer.shadowMap.needsUpdate = true;
+
+				scene.add( gltf.scene );
 	
 				res();
 		
@@ -285,14 +291,30 @@ function loadMuseum( onload: Function ) {
 		// 맵 로딩한거 제외하기
 		photoList = photoList.splice( 0, photoList.length - 1 ); 
 
-		for(let i = 0; i < photoList.length; i++){
+		for(let i = 0; i < photoList.length; i++) {
+
 			artInfos[0].Thumb2Texture = photoList[i];
-			addArtOn( meshList[i] );
+			addArtOn( frameList[i] );
+
 		}
 
-	});
+		// 최적화
+		for( const i in ObjectMap ) {
+	
+			const object = ObjectMap[i];
+			
+			object.matrixAutoUpdate = false;
+			object.matrixWorldNeedsUpdate = true;
 
+			console.log(object)
 
+		}
+
+		// 지구
+		ObjectMap['earth'].matrixAutoUpdate = true;
+	
+	});	
+	
 }
 
 
@@ -338,7 +360,6 @@ function addLight() {
 // ================================== 작품 전시 ==========================================================
 
 const textureLoader = new THREE.TextureLoader();
-const fontLoader = new THREE.FontLoader();
 
 /**
  * 작품을 추가하는 함수.
@@ -348,9 +369,7 @@ const fontLoader = new THREE.FontLoader();
  */
 const addArtOn = function() {
 	
-	const size = new THREE.Vector3();
 	const vector3 = new THREE.Vector3();
-	const box3 = new THREE.Box3();
 
 	// 텍스트를 캔버스로 그리고, 그걸 텍스쳐로 만들어 리턴하는 함수.
 	function drawText( name: string, detail: string ) {
@@ -392,7 +411,7 @@ const addArtOn = function() {
 		// 위치 정해주는 코드.
 		art.position.copy( mesh.position );
 		art.position.y = 6;
-		art.position.add( new Vector3( 0, 0, 0.4 ).applyQuaternion( mesh.quaternion ) )
+		art.position.add( vector3.set( 0, 0, 0.4 ).applyQuaternion( mesh.quaternion ) )
 		art.quaternion.copy( mesh.quaternion );
 	
 		art.receiveShadow = false;
