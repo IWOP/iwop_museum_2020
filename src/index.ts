@@ -75,10 +75,6 @@ init( loaded , {
 
 /**
  * 볼륨바 바꾸는 코드
- * 
- * 알아두면 좋은것! 단항 + 연산자.
- * 지금 당장 콘솔에 ('ba' + + 'a' + 'a').toLowerCase(); 를 쳐보세요.
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Unary_plus
  */
 welcomeAudioBar.onchange = pauseAudioBar.onchange = (e: Event) => {
 
